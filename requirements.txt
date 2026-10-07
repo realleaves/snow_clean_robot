@@ -1,5 +1,9 @@
+# 运行时依赖（Mock 模式与全虚拟验收测试均只需这些）
 numpy>=1.24
 opencv-python>=4.8
 PyYAML>=6.0
+
+# 自动化测试（V1.0 验收要求 pytest 全绿）
 pytest>=7.0
+
 # Install pyrealsense2 separately on supported Raspberry Pi builds for real mode.

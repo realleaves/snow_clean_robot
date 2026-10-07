@@ -1,15 +1,23 @@
-"""Read-only D435i capture diagnostic; does not initialize robot control."""
+"""Read-only D435i capture diagnostic; does not initialize robot control.
+
+Requires real hardware and ``pyrealsense2``. Without them it exits with a clear
+message instead of a traceback, so it is safe to run as a smoke check.
+"""
 import argparse
+import sys
 from pathlib import Path
 import time
+
 import cv2
 import numpy as np
 import yaml
+
 from camera.realsense_camera import RealSenseCamera
+from utils.errors import CameraError
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
+def main() -> int:
+    parser = argparse.ArgumentParser(description='D435i 只读采集自检（不启动机器人）')
     parser.add_argument('--seconds', type=float, default=10)
     parser.add_argument('--headless', action='store_true')
     parser.add_argument('--save-dir', type=Path)
@@ -33,13 +41,17 @@ def main() -> None:
                 cv2.imshow('D435i aligned depth', depth)
                 if cv2.waitKey(1) == 27:
                     break
+    except CameraError as exc:
+        print(f'camera check unavailable: {exc}', file=sys.stderr)
+        return 1
     finally:
         camera.stop()
         if not args.headless:
             cv2.destroyAllWindows()
     elapsed = max(time.monotonic() - start, 1e-9)
     print(f'frames={count} elapsed_s={elapsed:.1f} average_fps={count / elapsed:.1f}')
+    return 0
 
 
 if __name__ == '__main__':
-    main()
+    raise SystemExit(main())

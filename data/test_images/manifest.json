@@ -1,0 +1,11 @@
+{
+  "seed": 20260924,
+  "per_class": 8,
+  "categories": {
+    "clean": 8,
+    "light": 8,
+    "medium": 8,
+    "heavy": 8,
+    "interference": 8
+  }
+}
