@@ -1,0 +1,7 @@
+mode: mock
+headless: true
+logging:
+  level: INFO
+loop:
+  target_fps: 10
+  max_steps: 60

@@ -1,0 +1,4 @@
+map: {width: 40, height: 40, resolution_m: 0.1, origin_x: -1.0, origin_y: -1.0}
+planner: {allow_diagonal: true}
+pollution_map: {merge_distance_m: 0.25}
+priority: {pollution_weight: 0.60, distance_weight: 0.25, waiting_weight: 0.15, max_distance_m: 4.0, starvation_seconds: 120}

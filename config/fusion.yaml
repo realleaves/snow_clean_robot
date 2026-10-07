@@ -1,0 +1,3 @@
+humidity: {dry_raw: 700, wet_raw: 3500}
+fusion: {visual_weight: 0.50, humidity_weight: 0.30, area_weight: 0.20, max_area_ratio: 0.20}
+pollution_level: {light_max: 0.35, medium_max: 0.70}

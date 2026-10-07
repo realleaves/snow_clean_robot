@@ -1,0 +1,5 @@
+numpy>=1.24
+opencv-python>=4.8
+PyYAML>=6.0
+pytest>=7.0
+# Install pyrealsense2 separately on supported Raspberry Pi builds for real mode.

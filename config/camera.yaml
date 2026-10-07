@@ -1,0 +1,7 @@
+camera: {width: 640, height: 480, fps: 30}
+ground_roi: {x_start: 40, x_end: 600, y_start: 180, y_end: 480}
+depth: {min_distance_m: 0.15, max_distance_m: 2.0}
+calibration:
+  frame_count: 30
+  # A clean reference is valid only for the same fixed camera viewpoint.
+  reference_path: data/clean_reference/reference.png

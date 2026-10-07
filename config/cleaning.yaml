@@ -1,0 +1,2 @@
+cleaning: {light_passes: 1, medium_passes: 1, heavy_passes: 2, max_retry: 2}
+feedback: {success_threshold: 0.80}

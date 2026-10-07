@@ -1,0 +1,14 @@
+perception:
+  min_region_area_px: 500
+  gaussian_kernel: 5
+  morph_open_kernel: 3
+  morph_close_kernel: 5
+  brightness_weight: 0.35
+  saturation_weight: 0.20
+  texture_weight: 0.25
+  reflection_weight: 0.20
+  brightness_scale: 80
+  saturation_scale: 80
+  texture_scale: 80
+  reflection_threshold: 235
+  candidate_threshold: 0.17
