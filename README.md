@@ -10,7 +10,8 @@
 → 完成 / 人工检查 → 状态机 / 日志 / 可视化
 ```
 
-全部软件闭环，并通过 478 项自动化测试与 8 个完整 Mock 演示场景。
+全部软件闭环，原有基线为 478 项自动化测试与 8 个完整 Mock 演示场景；
+当前数量以实际 `pytest` 输出为准。
 
 `real` 模式会明确报错，因为真实定位、相机外参、湿度通信和机器人控制协议尚未提供。
 
@@ -32,11 +33,15 @@ python3 -m venv .venv
 .venv/bin/python main.py --scenario C
 .venv/bin/python main.py --all-scenarios
 
-# 全量自动化测试（478 项）
+# 一键导出实际虚拟运行截图、结构化报告、源码整理稿与申报准备文档
+.venv/bin/python -m tools.export_application_materials
+
+# 全量自动化测试（包含新增材料导出回归用例）
 .venv/bin/python -m pytest -q
 ```
 
 `--steps` 控制最大状态机步数；`--headless` 禁用 OpenCV 窗口；`--json` 输出运行摘要。
+场景模式的 `--json` 标准输出也是可直接解析的 JSON，检查消息输出到标准错误。
 运行日志写入 `logs/`（文件名带微秒后缀，多次运行不覆盖），干净参考帧写入
 `data/clean_reference/reference.png`。
 
@@ -66,7 +71,7 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest tests -q
 | Interface | RobotInterface、MockRobot（动作日志与联锁）、MockHumidity | 通过 |
 | Feedback | CleaningEvaluator、PASS/FAIL、Compensation、max_retry、MANUAL_CHECK | 通过 |
 | System | StateMachine 正常/补偿/失败/ERROR、Logging、Headless、GUI 面板、完整 Mock Demo | 通过 |
-| Automation | 478 项 pytest 全绿、无未处理异常、无无限循环 | 通过 |
+| Automation | 原有 478 项基线及新增回归；以当前 pytest 实测为准 | 见测试输出 |
 
 详细的逐条核对见 [DESIGN_REVIEW.md](DESIGN_REVIEW.md)。
 
@@ -84,7 +89,7 @@ decision/        任务状态、优先级调度、任务管理、清洁策略、
 feedback/        清洁效率评估、有限次数补偿
 interface/       硬件抽象、Mock 机器人、Mock 湿度传感器
 visualization/   OpenCV 监控面板、相机视图、地图视图
-tests/           27 个测试文件，478 项用例（正常 / 边界 / 异常）
+tests/           正常 / 边界 / 异常及材料导出回归用例
 tools/           虚拟测试图像数据集生成器
 scenario_runner.py  场景 A–H 定义与断言
 config/*.yaml    全部可调参数（ROI、深度、阈值、权重、级别、清洁、调度、地图）
@@ -114,7 +119,7 @@ MockCamera 作为图片序列回放。
 | C | MEDIUM 一次失败一次补偿成功 | retry=1，共 2 遍清洁，走过 COMPENSATE |
 | D | HEAVY 多遍清洁 | 首次执行 2 遍 |
 | E | 连续失败 | retry 不超过 max_retry，进入 MANUAL_CHECK 且不死循环 |
-| F | 多任务优先级调度 | 多目标顺序执行且无错误 |
+| F | 多目标任务处理 | 每个目标恰好完成一次；优先级竞争另有调度单测 |
 | G | 无路径 | A* 失败 → ERROR 并安全停机 |
 | H | 异常输入注入 | 空帧被捕获 → ERROR，清洁机构复位 |
 
@@ -122,6 +127,16 @@ MockCamera 作为图片序列回放。
 .venv/bin/python main.py --all-scenarios
 # 8/8 场景通过
 ```
+
+## 软著材料准备
+
+操作说明见 [用户手册](docs/USER_MANUAL.md)，缺项与权属核对见
+[申请准备清单](docs/COPYRIGHT_CHECKLIST.md)。运行一键导出命令后，在新生成的
+`artifacts/copyright-时间戳/` 中打开 `index.html` 查看真实执行产生的 **Mock 面板**，
+`report.json` 查看状态与动作记录，`manifest.json` 核对源码和文件哈希。
+`source_full.txt` 与 `source_review.html` 是待检查的源程序整理稿，不代表正式提交件
+已经排版合格。材料不包含权利人身份证明、归属协议或申请表，不会自动提交登记。
+不要把虚拟清洁效率、提示值驱动的场景分级写成真实机器人性能。
 
 ## 6. 真机接入前必须完成
 

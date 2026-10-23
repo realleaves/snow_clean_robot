@@ -4,3 +4,4 @@ __pycache__/
 .pytest_cache/
 logs/
 data/clean_reference/*.png
+artifacts/

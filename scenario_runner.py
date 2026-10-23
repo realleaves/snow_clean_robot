@@ -20,6 +20,7 @@ Two mechanisms make the decision chain controllable from a scenario:
 """
 from pathlib import Path
 
+import cv2
 import numpy as np
 
 from camera.mock_camera import MockCamera
@@ -36,9 +37,15 @@ class Scenario:
         self.key, self.title, self.description = key, title, description
         self.builder, self.checks = builder, checks
 
-    def run(self) -> dict:
+    def run(self, output_dir: Path | None = None) -> dict:
         context = self.builder()
         system = context['system']
+        trace = []
+        screenshots = []
+        captured = set()
+        if output_dir is not None:
+            output_dir = Path(output_dir)
+            output_dir.mkdir(parents=True, exist_ok=True)
         try:
             system.initialize()
             stop_when = context.get('stop_when')
@@ -47,18 +54,38 @@ class Scenario:
                 if not system.running:
                     break
                 system.update()
+                trace.append(system.summary())
+                capture_key = (system.machine.state.value,
+                               system.task.task_id if system.task else None,
+                               system.task.retry_count if system.task else 0)
+                if output_dir is not None and system.frame is not None and capture_key not in captured:
+                    panel = system.monitor.render(
+                        system.frame, system.detector.last_mask, system.regions,
+                        system.machine.state.value, system.task, system.camera.measured_fps,
+                        region=system.region,
+                        path_length=system.planner.path_length_m(system.path) if system.path else None)
+                    filename = f'{self.key}_{system.step_count:03d}_{capture_key[0]}.png'
+                    if not cv2.imwrite(str(output_dir / filename), panel):
+                        raise OSError(f'cannot write screenshot: {output_dir / filename}')
+                    screenshots.append(filename)
+                    captured.add(capture_key)
                 if stop_when is not None and stop_when(system):
                     if settle <= 0:
                         break
                     settle -= 1
             summary = system.summary()
             detail = self.checks(system, summary)
+            states = [state.value for state in system.machine.history]
+            actions = system.robot.action_log()
         finally:
             system.shutdown()
         passed = all(detail.values())
         return dict(key=self.key, title=self.title, description=self.description,
                     passed=passed, checks=detail, summary=summary,
-                    context={k: v for k, v in context.items() if k != 'system'})
+                    context={key: value for key, value in context.items()
+                             if key != 'system' and not callable(value)},
+                    state_history=states, robot_actions=actions, trace=trace,
+                    screenshots=screenshots)
 
 
 # ---------------------------------------------------------------------- builders
@@ -209,14 +236,16 @@ def scene_f() -> Scenario:
                     all(t.terminal for t in s.tasks.tasks.values()))
 
     def checks(system, summary):
-        levels = sorted(t.pollution_level for t in system.tasks.tasks.values())
+        completed_ids = [task_id for task_id, _, status in system.tasks.history
+                         if status == 'COMPLETED']
         return {
             '检测到多个污染目标': len(system.tasks.tasks) >= 3,
-            '按优先级顺序生成任务': levels == sorted(levels),
+            '每个目标恰好完成一次': sorted(completed_ids) == sorted(system.tasks.tasks),
             '全部任务结束': all(t.terminal for t in system.tasks.tasks.values()),
             '优先级调度未报错': summary['errors'] == 0,
         }
-    return Scenario('F', '多任务优先级调度', '多个坐标/等级的目标按优先级顺序处理。', builder, checks)
+    return Scenario('F', '多目标任务处理',
+                    '多个目标依次处理；优先级竞争与防饿死由独立调度单测验证。', builder, checks)
 
 
 def scene_g() -> Scenario:
@@ -275,10 +304,10 @@ SCENARIOS = {scene.key: scene for scene in
               scene_g(), scene_h())}
 
 
-def run_scenario(key: str) -> dict:
+def run_scenario(key: str, output_dir: Path | None = None) -> dict:
     if key not in SCENARIOS:
         raise KeyError(f'unknown scenario {key}; expected one of {sorted(SCENARIOS)}')
-    return SCENARIOS[key].run()
+    return SCENARIOS[key].run(output_dir=output_dir)
 
 
 def run_all() -> list[dict]:
