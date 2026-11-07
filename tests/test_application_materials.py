@@ -96,6 +96,8 @@ def test_exported_materials_are_reproducible_and_linked(tmp_path):
     assert sources['selected_pages'] == min(sources['full_pages'], 60)
     printed = (destination / 'source_review.html').read_text(encoding='utf-8')
     assert printed.count('<section>') == sources['selected_pages']
+    assert '@page{size:A4 portrait' in printed
+    assert '<small>文件：' in printed
     gallery = (destination / 'index.html').read_text(encoding='utf-8')
     assert '不是真机照片' in gallery
     for scenario in report['scenarios']:

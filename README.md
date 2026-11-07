@@ -10,8 +10,8 @@
 → 完成 / 人工检查 → 状态机 / 日志 / 可视化
 ```
 
-全部软件闭环，原有基线为 478 项自动化测试与 8 个完整 Mock 演示场景；
-当前数量以实际 `pytest` 输出为准。
+全部软件闭环；2026-11-07 本机复测为 488 项自动化测试与 8 个完整 Mock 演示场景通过。
+后续数量以实际 `pytest` 输出为准。
 
 `real` 模式会明确报错，因为真实定位、相机外参、湿度通信和机器人控制协议尚未提供。
 
@@ -22,7 +22,7 @@
 建议 Python 3.10+：
 
 ```bash
-cd /home/real/Desktop/大创/snow_clean_robot
+cd /home/real/snow_clean_robot
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 
@@ -71,7 +71,7 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest tests -q
 | Interface | RobotInterface、MockRobot（动作日志与联锁）、MockHumidity | 通过 |
 | Feedback | CleaningEvaluator、PASS/FAIL、Compensation、max_retry、MANUAL_CHECK | 通过 |
 | System | StateMachine 正常/补偿/失败/ERROR、Logging、Headless、GUI 面板、完整 Mock Demo | 通过 |
-| Automation | 原有 478 项基线及新增回归；以当前 pytest 实测为准 | 见测试输出 |
+| Automation | 2026-11-07 复测 488 项；以当前 pytest 实测为准 | 通过 |
 
 详细的逐条核对见 [DESIGN_REVIEW.md](DESIGN_REVIEW.md)。
 

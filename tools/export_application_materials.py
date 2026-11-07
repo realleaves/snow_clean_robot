@@ -50,17 +50,22 @@ def export_sources(destination: Path) -> dict:
     selected = list(range(len(pages))) if len(pages) <= 60 else list(range(30)) + list(range(len(pages) - 30, len(pages)))
     sections = []
     for index, original in enumerate(selected, 1):
-        rows = '\n'.join(f'{html.escape(path)}:{number:04d}  {html.escape(line)}'
-                         for path, number, line in pages[original])
+        rows = '\n'.join(f'{number:04d}  {html.escape(line)}'
+                         for _, number, line in pages[original])
+        files = ', '.join(dict.fromkeys(path for path, _, _ in pages[original]))
         sections.append(f'<section><header>{SOFTWARE_NAME} {VERSION} — 源程序整理稿'
-                        f'<span>{index}/{len(selected)}（原序第 {original + 1} 页）</span></header>'
+                        f'<span>{index}/{len(selected)}（原序第 {original + 1} 页）</span>'
+                        f'<small>文件：{html.escape(files)}</small></header>'
                         f'<pre>{rows}</pre></section>')
     document = ('<!doctype html><html lang="zh-CN"><meta charset="utf-8">'
                 '<title>源程序整理稿</title><style>'
-                '@page{size:A4 landscape;margin:10mm}body{margin:0;color:#111}'
-                'section{break-after:page}section:last-child{break-after:auto}'
-                'header{font:12px sans-serif;border-bottom:1px solid #888;padding:6px 0}'
-                'span{float:right}pre{font:8px/1.4 monospace;white-space:pre;tab-size:4}'
+                '@page{size:A4 portrait;margin:10mm}body{margin:0;color:#111}'
+                'section{break-after:page;page-break-after:always}'
+                'section:last-child{break-after:auto;page-break-after:auto}'
+                'header{font:12px sans-serif;border-bottom:1px solid #888;padding:4px 0}'
+                'span{float:right}small{display:block;font:9px sans-serif;clear:both}'
+                'pre{font:9px/1.45 monospace;white-space:pre-wrap;overflow-wrap:anywhere;'
+                'tab-size:4;margin:6px 0}'
                 '</style>' + ''.join(sections) + '</html>')
     (destination / 'source_review.html').write_text(document, encoding='utf-8')
     return dict(files=records, total_lines=len(source_lines), nonblank_lines=len(printable),

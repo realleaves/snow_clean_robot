@@ -1,15 +1,14 @@
 # V1.0 方案核查、实现边界与虚拟验收核对表
 
 本文件对应《全虚拟功能实现与验收测试方案》第 32 节，逐条记录当前代码的验收状态。
-下文 478 项为原有基线；2026-10-23 新增 JSON 导出、命令行故障退出、运行证据与源码
-整理的回归测试，当前数量以实际 pytest 输出为准。F 场景当前验证多目标逐个完成，
+2026-11-07 从 GitHub 恢复后复测 488 项通过。F 场景当前验证多目标逐个完成，
 不再把原先的排序自比较当作优先级竞争证明；调度算法另见 tests/test_priority.py。
 复核命令：
 
 ```bash
-cd /home/real/Desktop/大创/snow_clean_robot
-.venv/bin/python -m pytest -q            # 478 passed
-.venv/bin/python main.py --all-scenarios # 8/8 场景通过
+cd /home/real/snow_clean_robot
+python3 -m pytest -q tests             # 488 passed（需安装 pytest）
+python3 main.py --all-scenarios       # 8/8 场景通过
 ```
 
 ## 1. 项目理解
@@ -152,7 +151,7 @@ cd /home/real/Desktop/大创/snow_clean_robot
     固定检测站复检、按目标匹配的复检测量、黑名单与待机保护、运行摘要。
 12. `tools/generate_test_data.py`：生成 clean/light/medium/heavy/interference 虚拟图像集。
 13. `scenario_runner.py` + `main.py --all-scenarios`：场景 A–H 可执行断言报告。
-14. `tests/`：27 个测试文件、478 项用例，覆盖正常 / 边界 / 异常三类路径。
+14. `tests/`：29 个测试文件、488 项用例，覆盖正常 / 边界 / 异常三类路径。
 
 ## 4. 必须补足的方案条件（真机接入前）
 
@@ -177,6 +176,6 @@ cd /home/real/Desktop/大创/snow_clean_robot
 可以准确描述为：系统 V1.0 软件功能模块全部完成，已在虚拟测试环境下完成 RGB-D 数据输入、
 湿态污染识别、多模态融合、污染等级判定、污染地图、任务生成、优先级调度、A* 路径规划、
 清洁策略、模拟机器人执行、清洁复检、补偿清洁、状态机和运行监控等完整软件闭环，全部
-V1.0 虚拟功能测试及自动化测试（478 项）通过。
+V1.0 虚拟功能测试及自动化测试（488 项）通过（2026-11-07 本机复测）。
 
 不得描述为：真实机器人性能全部验证通过。因为真实硬件性能验证不属于本阶段范围。
